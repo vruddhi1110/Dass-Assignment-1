@@ -13,7 +13,6 @@ const Onboarding = () => {
     const [clubs, setClubs] = useState([]);
     const [selectedClubs, setSelectedClubs] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
 
     useEffect(() => {
         // Fetch clubs (organizers)

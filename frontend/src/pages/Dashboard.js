@@ -67,6 +67,7 @@ const Dashboard = () => {
         loadDashboard();
     }, 500);
     return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [role, searchTerm, filterType, filterEligibility, filterStart, filterEnd]); // Add dependencies
 
 

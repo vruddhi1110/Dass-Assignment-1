@@ -20,8 +20,6 @@ const EventRegistration = () => {
     const [pContact, setPContact] = useState('');
     const [pCollege, setPCollege] = useState('');
     // Modal state for organizer success details
-    const [showModal, setShowModal] = useState(false);
-    const [modalData, setModalData] = useState(null);
     const [participantsList, setParticipantsList] = useState([]); // Store participants for display
     const [scannerOpen, setScannerOpen] = useState(false);
     const [pSearchQuery, setPSearchQuery] = useState(''); // NEW: Search State
@@ -118,8 +116,7 @@ const EventRegistration = () => {
     // Check if registration is blocked
     const isDeadlinePassed = event && event.registrationDeadline && new Date(event.registrationDeadline) < new Date();
     const isLimitReached = event && event.registrationLimit && event.registrationCount >= event.registrationLimit;
-    const isFormLocked = event && event.formLocked; // Only relevant for organizers editing struct
-
+    
     // -----------------------------------------------------
     // ANALYTICS CALCULATIONS
     // -----------------------------------------------------
@@ -382,7 +379,7 @@ const EventRegistration = () => {
             const officeUrl = `https://outlook.office.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&startdt=${encodeURIComponent(startISO)}&enddt=${encodeURIComponent(endISO)}&location=${encodeURIComponent(location)}`;
 
             // Outlook.com (personal) fallback
-            const liveUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&startdt=${encodeURIComponent(startISO)}&enddt=${encodeURIComponent(endISO)}&location=${encodeURIComponent(location)}`;
+            // const liveUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&startdt=${encodeURIComponent(startISO)}&enddt=${encodeURIComponent(endISO)}&location=${encodeURIComponent(location)}`;
 
             // Open office.com first (more common for corporate/edu), then fallback to live.com
             // Some browsers block immediate fallback if first opens; open office in new tab and also open live in a second tab if desired.

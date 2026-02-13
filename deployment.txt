@@ -1,2 +1,2 @@
 Frontend URL: <REPLACE_WITH_YOUR_VERCEL_URL>
-Backend URL: <REPLACE_WITH_YOUR_RENDER_URL>
+Backend URL: https://vruddhi-felicity-event-backend.onrender.com

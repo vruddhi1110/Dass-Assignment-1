@@ -7,28 +7,24 @@ const QRScanner = ({ eventId, onScanned, onClose }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [error, setError] = useState(null);
-  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     let stream = null;
     let rafId = null;
+    let isScanning = true;
 
-    const startCamera = async () => {
+    const markAttendance = async (ticketId) => {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-          setScanning(true);
-          tick();
-        }
+        const resp = await API.post(`/registrations/events/${eventId}/attendance`, { ticketId });
+        if (onScanned) onScanned({ success: true, msg: resp.data?.msg, ticketId });
       } catch (err) {
-        console.warn('Camera access failed, falling back to file upload', err);
-        setError('Camera not available or permission denied. Use upload fallback.');
+        console.error('Scan POST failed', err.response || err);
+        if (onScanned) onScanned({ success: false, msg: err.response?.data?.msg || 'Scan failed', ticketId });
       }
     };
 
     const tick = () => {
+      if (!isScanning) return;
       if (!videoRef.current || videoRef.current.readyState !== videoRef.current.HAVE_ENOUGH_DATA) {
         rafId = requestAnimationFrame(tick);
         return;
@@ -45,7 +41,7 @@ const QRScanner = ({ eventId, onScanned, onClose }) => {
       const code = jsQR(imageData.data, imageData.width, imageData.height);
       if (code && code.data) {
         // Stop further scanning
-        setScanning(false);
+        isScanning = false;
         if (stream) {
           stream.getTracks().forEach(t => t.stop());
         }
@@ -56,23 +52,33 @@ const QRScanner = ({ eventId, onScanned, onClose }) => {
       rafId = requestAnimationFrame(tick);
     };
 
+    const startCamera = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+          isScanning = true;
+          tick();
+        }
+      } catch (err) {
+        console.warn('Camera access failed, falling back to file upload', err);
+        setError('Camera not available or permission denied. Use upload fallback.');
+      }
+    };
+
     startCamera();
 
     return () => {
-      if (stream) stream.getTracks().forEach(t => t.stop());
+      isScanning = false;
+      if (stream) {
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          try { stream.getTracks().forEach(t => t.stop()); } catch(e){}
+      }
       if (rafId) cancelAnimationFrame(rafId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
-
-  const markAttendance = async (ticketId) => {
-    try {
-      const resp = await API.post(`/registrations/events/${eventId}/attendance`, { ticketId });
-      onScanned && onScanned({ success: true, msg: resp.data?.msg, ticketId });
-    } catch (err) {
-      console.error('Scan POST failed', err.response || err);
-      onScanned && onScanned({ success: false, msg: err.response?.data?.msg || 'Scan failed', ticketId });
-    }
-  };
 
   // Upload fallback handler
   const handleFile = async (e) => {
@@ -82,10 +88,10 @@ const QRScanner = ({ eventId, onScanned, onClose }) => {
     fd.append('image', file);
     try {
       const resp = await API.post(`/registrations/events/${eventId}/attendance/scan-image`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      onScanned && onScanned({ success: true, msg: resp.data?.msg });
+      if (onScanned) onScanned({ success: true, msg: resp.data?.msg });
     } catch (err) {
       console.error('Image scan failed', err.response || err);
-      onScanned && onScanned({ success: false, msg: err.response?.data?.msg || 'Image scan failed' });
+      if (onScanned) onScanned({ success: false, msg: err.response?.data?.msg || 'Image scan failed' });
     }
   };
 
