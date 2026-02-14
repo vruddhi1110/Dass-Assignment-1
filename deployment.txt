@@ -1,2 +1,2 @@
-Frontend URL: <REPLACE_WITH_YOUR_VERCEL_URL>
+Frontend URL: https://dass-assignment-1-phi.vercel.app/
 Backend URL: https://vruddhi-felicity-event-backend.onrender.com
