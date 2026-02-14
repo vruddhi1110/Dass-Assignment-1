@@ -13,6 +13,7 @@ const Onboarding = () => {
     const [clubs, setClubs] = useState([]);
     const [selectedClubs, setSelectedClubs] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         // Fetch clubs (organizers)
@@ -93,6 +94,7 @@ const Onboarding = () => {
     return (
         <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto' }}>
             <h2>Welcome! Let's personalize your experience.</h2>
+            {message && <div style={{ marginBottom: '20px', color: 'green', fontWeight: 'bold' }}>{message}</div>}
             
             {step === 1 && (
                 <div>
